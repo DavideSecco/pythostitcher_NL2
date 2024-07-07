@@ -19,6 +19,11 @@ def load_parameter_configuration(data_dir, save_dir, output_res):
     """
     Convenience function to load all the PythoStitcher parameters and pack them up
     in a dictionary for later use.
+
+    Compute also the number of image fragments
+
+    Return:
+        dict(arguments passed by command line, arguments from the file "config/parameter_config.json")
     """
 
     # Verify its existence
@@ -80,7 +85,11 @@ def load_parameter_configuration(data_dir, save_dir, output_res):
 
 def collect_arguments():
     """
-    Function to parse arguments into main function
+    Function to parse arguments into main function and define the pythostitcher exectution mode: single mode or batch mode.
+    - Batch mode if folder "raw_images is not present"
+    - Single mode otherwise
+
+    Return: (datadir, savedir, resolution, mode)
     """
 
     # Parse arguments
@@ -144,7 +153,7 @@ def run_case(data_dir, save_dir, output_res):
     /data
         /{Patient_identifier}
             /raw_images
-                {fragment_name}.mrxs§
+                {fragment_name}.mrxs
                 {fragment_name}.mrxs
             /raw_masks
                 {fragment_name}.tif
@@ -171,6 +180,8 @@ def run_case(data_dir, save_dir, output_res):
 
     # Initiate logging file
     logfile = save_dir.joinpath("pythostitcher_log.txt")
+
+    # If the logfile already exist --> delete it
     if logfile.exists():
         logfile.unlink()
 
@@ -203,7 +214,7 @@ def run_case(data_dir, save_dir, output_res):
             f"be able to generate the full resolution end result.",
         )
 
-    ### MAIN PYTHOSTITCHER #s##
+    ### MAIN PYTHOSTITCHER ###
     # Preprocess data
     prepare_data(parameters=parameters)
 
@@ -255,8 +266,10 @@ def run_case(data_dir, save_dir, output_res):
 def main():
     """
     Main function to run PythoStitcher. PythoStitcher will automatically figure out if
-    the provided data directory contains multiple patients. If so, it will initiate
-    batch mode. Otherwise it will run in single mode.
+    the provided data directory contains multiple patients (thanks to the function collect_arguments()).
+    In case of multiple patients, it will initiate batch mode, otherwise it will run in single mode.
+
+    We didn't test the batch mode.
     """
 
     # Get arguments and determine single/batch mode
@@ -275,7 +288,6 @@ def main():
         print(f"\n### Identified {len(patients)} cases. ###")
 
         for pt in patients:
-
             pt_data_dir = data_dir.joinpath(pt.name)
             pt_save_dir = save_dir.joinpath(pt.name)
             run_case(pt_data_dir, pt_save_dir, output_res)
