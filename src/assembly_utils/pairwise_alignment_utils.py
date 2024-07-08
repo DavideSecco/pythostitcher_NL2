@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import rdp
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import math
 import itertools
 
@@ -302,8 +303,8 @@ class Fragment:
         if debug_this:
             plt.figure()
             plt.imshow(self.mask, cmap="gray")
-            plt.scatter(self.cnt[:, 0], self.cnt[:, 1], c='r')
-            plt.scatter(self.cnt_rdp[:, 0], self.cnt_rdp[:, 1], c='g')
+            plt.scatter(self.cnt[:, 0], self.cnt[:, 1], c='r')              # set red color to something
+            plt.scatter(self.cnt_rdp[:, 0], self.cnt_rdp[:, 1], c='g')      # set green color colo something
             plt.show()
 
         ### Step 2 ###
@@ -320,22 +321,44 @@ class Fragment:
         # with 2 or 4 fragments. These choices were based on empirical observations.
         if hasattr(self, "location") and self.num_fragments == 2:
             if self.location in ["left", "right"]:
-                bbox_corners_expansion = -np.vstack([bbox_corner_dist[:, 0]*5, np.zeros_like(
+                bbox_corners_expansion = -np.vstack([bbox_corner_dist[:, 0] * 5, np.zeros_like(
                     bbox_corner_dist[:, 0])]).T
 
             elif self.location in ["top", "bottom"]:
                 bbox_corners_expansion = -np.vstack([np.zeros_like(bbox_corner_dist[:, 0]),
-                                                    [bbox_corner_dist[:, 1]*5]]).T
+                                                     [bbox_corner_dist[:, 1] * 5]]).T
 
         # Case of 4 fragments expand uniformly.
         else:
             expansion = bbox_center / 2
             expand_direction = np.array([list(i < 0) for i in bbox_corner_dist])
             bbox_corners_expansion = (expand_direction == True) * expansion + (
-                expand_direction == False
+                    expand_direction == False
             ) * -expansion
 
         new_bbox_corners = bbox_corners + bbox_corners_expansion
+
+        # I was not able to visualize the second rectagle (the expansion)
+        debug_this = True
+        if debug_this:
+            # print(bbox_corners)
+            # print(new_bbox_corners)
+
+            plt.imshow(self.mask, cmap="gray")
+
+            # Get the current axes
+            ax = plt.gca()
+
+            # Create a polygon patch (rectangle)
+            polygon = patches.Polygon(bbox_corners, closed=True, edgecolor='r', facecolor='none', linewidth=2)
+            # polygon_expansion = patches.Polygon(new_bbox_corners, closed=True, edgecolor='b', facecolor='none', linewidth=2)
+
+            # Add the polygon to the plot
+            ax.add_patch(polygon)
+            # ax.add_patch(polygon_expansion)
+
+            # Show the plot with the rectangle overlayed on the image
+            plt.show()
 
         ### Step 3 ###
         # Get closest point on contour as seen from bbox corners
@@ -353,6 +376,7 @@ class Fragment:
         # Step 4a - scenario with 2 fragments
         if self.num_fragments == 2:
 
+            # Se hasattr per via della forceconfig
             if hasattr(self, "location"):
 
                 if self.location == "left":
