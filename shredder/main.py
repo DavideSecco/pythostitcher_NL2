@@ -1,11 +1,21 @@
 import os
 import sys
 
-# Needed for Davide in order to import the multiresolutionimageinterface library
-if os.path.exists('/mnt/Volume/Mega/LaureaMagistrale/CorsiSemestre/A2S1/MultudisciplinaryProject/ASAP-ASAP-2.1/'):
-    from pathlib import Path
-    sys.path.append(str("/mnt/Volume/Mega/LaureaMagistrale/CorsiSemestre/A2S1/MultudisciplinaryProject/ASAP-ASAP-2.1/src/install/usr/local/bin/"))
-    assert Path(sys.path[0]).exists()
+# Needed for Davide and Paolo in order to import the multiresolutionimageinterface library
+davide = False
+paolo = True
+if davide:
+    if os.path.exists('/mnt/Volume/Mega/LaureaMagistrale/CorsiSemestre/A2S1/MultudisciplinaryProject/ASAP-ASAP-2.1/'):
+        from pathlib import Path
+        sys.path.append(str("/mnt/Volume/Mega/LaureaMagistrale/CorsiSemestre/A2S1/MultudisciplinaryProject/ASAP-ASAP-2.1/src/install/usr/local/bin/"))
+        assert Path(sys.path[0]).exists()
+
+elif paolo:
+    if os.path.exists('C:/Program Files/ASAP2.1'):
+        from pathlib import Path
+        sys.path.append(str("C:/Program Files/ASAP2.1/bin/"))
+        assert Path(sys.path[0]).exists()
+
 
 import multiresolutionimageinterface as mir
 import pathlib
@@ -110,7 +120,7 @@ class Shredder:
         # Get low resolution image
         self.opener = mir.MultiResolutionImageReader()
         self.mir_image = self.opener.open(str(self.case))
-
+        print(type(self.mir_image))  # this is for debugging
         self.ds_factor = int(self.mir_image.getLevelDownsample(self.lowres_level))
         self.lowres_image_dims = self.mir_image.getLevelDimensions(self.lowres_level)
         self.lowres_image = self.mir_image.getUCharPatch(
