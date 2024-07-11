@@ -1,19 +1,17 @@
 import os
 import sys
-
+from pathlib import Path
 # Needed for Davide and Paolo in order to import the multiresolutionimageinterface library
 davide = False
 paolo = True
 if davide:
     if os.path.exists('/mnt/Volume/Mega/LaureaMagistrale/CorsiSemestre/A2S1/MultudisciplinaryProject/ASAP-ASAP-2.1/'):
-        from pathlib import Path
         sys.path.append(str("/mnt/Volume/Mega/LaureaMagistrale/CorsiSemestre/A2S1/MultudisciplinaryProject/ASAP-ASAP-2.1/src/install/usr/local/bin/"))
         assert Path(sys.path[0]).exists()
 
 elif paolo:
-    if os.path.exists('C:/Program Files/ASAP2.1'):
-        from pathlib import Path
-        sys.path.append(str("C:/Program Files/ASAP2.1/bin/"))
+    if os.path.exists('C:/Program Files/ASAP2.2'):
+        sys.path.append(str("C:/Program Files/ASAP2.2/bin/"))
         assert Path(sys.path[0]).exists()
 
 
@@ -116,8 +114,8 @@ class Shredder:
         """
         Load the pyramidal image and get a downsampled image from it
         """
-
         # Get low resolution image
+        self.case = pathlib.Path(str(r"C:\Users\dicia\pythostitcher_new\pythostitcher-main\datasets\pancreas\raw_images\fragment1.mrxs"))  # THIS IS FOR DEBUGGING
         self.opener = mir.MultiResolutionImageReader()
         self.mir_image = self.opener.open(str(self.case))
         print(type(self.mir_image))  # this is for debugging
@@ -588,15 +586,16 @@ def main():
 
     # Get arguments
     data_dir, mask_dir, save_dir, rotation, n_fragments = collect_arguments()
-
     # MULTI MODE
 
     # Get cases
     cases = sorted(list(data_dir.iterdir()))
+    print(cases[1])  # this is for debugging
     n1 = len(cases)
     print(f"Found {n1} cases to shred")
     cases = [i for i in cases if not save_dir.joinpath(i.name.rstrip(".tif"),
                                                        "fragment4_shred_parameters.json").exists()]
+    print(cases[1].name)  # this is for debugging
     n2 = len(cases)
     print(f"Already completed {n1-n2} cases, shredding remaining {n2} cases...")
 
